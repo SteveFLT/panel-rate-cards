@@ -23,11 +23,9 @@
   .tab-group.ca              { background: #fee2e2; }
   .tab-group.ca .tab-group-label { color: #b91c1c; }
   .tab-group.ca .tab.active  { color: #dc2626; }
-  .tab-group.uk              { background: #e0e7ff; opacity: 0.85; }
+  .tab-group.uk              { background: #e0e7ff; }
   .tab-group.uk .tab-group-label { color: #4338ca; }
-  .tab-group.uk .tab         { color: #6366f1; }
   .tab-group.uk .tab.active  { color: #4338ca; }
-  .badge-soon { display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 9px; font-weight: 800; margin-left: 7px; background: #4338ca; color: white; vertical-align: middle; letter-spacing: 0.4px; }
 
   .content { padding: 24px 32px; max-width: 1200px; }
   .tab-content { display: none; }
@@ -108,7 +106,6 @@
   @media print {
     .tabs, .print-btn { display: none; }
     .tab-content { display: block !important; page-break-after: always; }
-    .tab-content.placeholder-tab { display: none !important; }
     body { background: white; }
     .content { padding: 0; }
   }
@@ -134,8 +131,8 @@
   </div>
   <div class="tab-group uk">
     <div class="tab-group-label">&#127468;&#127463; United Kingdom</div>
-    <div class="tab" onclick="switchTab('uk-calc', this)">&#128202; Cost Calculations<span class="badge-soon">Soon</span></div>
-    <div class="tab" onclick="switchTab('uk-shopify', this)">&#128722; Shopify Rate Card<span class="badge-soon">Soon</span></div>
+    <div class="tab" onclick="switchTab('uk-calc', this)">&#128202; Cost Calculations</div>
+    <div class="tab" onclick="switchTab('uk-shopify', this)">&#128722; Shopify Rate Card</div>
   </div>
 </div>
 
@@ -284,24 +281,71 @@
     </table>
   </div>
 
-  <!-- UK CALC (placeholder) -->
-  <div id="tab-uk-calc" class="tab-content placeholder-tab">
-    <div class="placeholder-panel">
-      <div class="pl-flag">&#127468;&#127463;</div>
-      <h2>UK Cost Calculations &mdash; coming soon</h2>
-      <p>Carrier costs, weight conflicts, and ideal rates for the United Kingdom shipping zone will appear here once finalized.</p>
-      <span class="pl-tag">Awaiting Carrier Quotes</span>
+  <!-- UK CALC -->
+  <div id="tab-uk-calc" class="tab-content">
+    <div class="summary-bar">
+      <div class="summary-card"><div class="val" id="uk-combo-count">&mdash;</div><div class="lbl">Combinations</div></div>
+      <div class="summary-card"><div class="val" id="uk-low-rate">&mdash;</div><div class="lbl">Lowest Std. Rate</div></div>
+      <div class="summary-card"><div class="val" id="uk-high-rate">&mdash;</div><div class="lbl">Highest Std. Rate</div></div>
+      <div class="summary-card"><div class="val" style="color:#f59e0b">1</div><div class="lbl">Weight Conflicts</div></div>
     </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#fff7ed;border:1.5px solid #f59e0b"></div><span><strong>Orange:</strong> Same weight, different costs &mdash; higher rate applied</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#fefce8;border:1.5px solid #eab308"></div><span><strong>Yellow:</strong> Item lands in a higher Shopify bracket than its ideal rate</span></div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th rowspan="2">#</th>
+          <th rowspan="2">Combination</th>
+          <th rowspan="2">Weight</th>
+          <th rowspan="2">Shipping Cost (UK)</th>
+          <th colspan="2" class="group-std" style="text-align:center;border-left:2px solid #2e4a7a">Standard ($X9.95)</th>
+          <th colspan="2" class="group-plus" style="text-align:center;border-left:2px solid #5b2d9e">Rounded Up (+$10)</th>
+        </tr>
+        <tr>
+          <th class="group-std" style="border-left:2px solid #2e4a7a">Rate</th>
+          <th class="group-std">Margin</th>
+          <th class="group-plus" style="border-left:2px solid #5b2d9e">Rate</th>
+          <th class="group-plus">Margin</th>
+        </tr>
+      </thead>
+      <tbody id="uk-calc-body"></tbody>
+    </table>
+    <p style="margin-top:10px;font-size:12px;color:#94a3b8;">&#8224; Ideal rate is the lowest $X9.95 price covering cost. Actual bracket rate may differ &mdash; see UK Shopify tab.</p>
   </div>
 
-  <!-- UK SHOPIFY (placeholder) -->
-  <div id="tab-uk-shopify" class="tab-content placeholder-tab">
-    <div class="placeholder-panel">
-      <div class="pl-flag">&#127468;&#127463;</div>
-      <h2>UK Shopify Rate Card &mdash; coming soon</h2>
-      <p>Weight-based brackets for the United Kingdom shipping zone will be published here for direct entry into Shopify, alongside conflict and bump notes.</p>
-      <span class="pl-tag">Awaiting Carrier Quotes</span>
+  <!-- UK SHOPIFY -->
+  <div id="tab-uk-shopify" class="tab-content">
+    <div class="shopify-top">
+      <div class="rate-toggle-bar">
+        <span class="rate-toggle-label">Customer rates:</span>
+        <div class="toggle-pill">
+          <span class="toggle-opt active" onclick="toggleRates('uk-shopify-body', this, false)">Standard</span>
+          <span class="toggle-opt rounded" onclick="toggleRates('uk-shopify-body', this, true)">Rounded Up +$10</span>
+        </div>
+      </div>
+      <button class="print-btn" onclick="window.print()">&#128424; Print / Save PDF</button>
     </div>
+    <div class="info-box">
+      <strong>How to enter in Shopify:</strong>
+      <ol>
+        <li>Go to <em>Settings &rarr; Shipping &amp; Delivery</em></li>
+        <li>Click your <strong>United Kingdom</strong> shipping zone (create it first if needed)</li>
+        <li>Add a rate &rarr; select <em>"Based on order weight"</em></li>
+        <li>Enter each row below as a weight condition with the listed price</li>
+        <li>Ensure all product weights are set correctly in your Shopify catalog</li>
+      </ol>
+    </div>
+    <div class="note-box">
+      <strong>One weight conflict resolved (orange):</strong><br>
+      <strong>236 lbs:</strong> 2A+2B+2Y ($1,063.18, needs $1,069.95) and 4B+1X ($973.52, needs $979.95) share the same weight. Rate set to <strong>$1,069.95</strong> &mdash; 4B+1X customers overcharged by $90.<br><br>
+      <strong>Non-monotonic brackets (yellow):</strong> UK Floor Stand (Z) is the most expensive item to ship per pound of all five products. This produces several places where a heavier bracket has a lower rate than a lighter one &mdash; most notably, standalone units (1A, 1B) at 38&ndash;39 lbs cost far less to ship than 4Z at 24 lbs, and 1X at 84 lbs sits between two more expensive brackets. Shopify evaluates each bracket independently so all costs are always covered.
+    </div>
+    <table class="shopify-table">
+      <thead><tr><th>Min Weight (lbs)</th><th>Max Weight (lbs)</th><th>Shopify Rate</th><th>Combinations in This Range</th><th>Notes</th></tr></thead>
+      <tbody id="uk-shopify-body"></tbody>
+    </table>
   </div>
 
 </div>
@@ -551,6 +595,61 @@ renderShopifyTable('ca-shopify-body', [
   {min:234, max:235, rate:699.95, type:'',        combos:'4B+2Y (234 lbs, $698.66)',                                                                                                                        note:''},
   {min:236, max:237, rate:719.95, type:'conflict',combos:'2A+2B+2Y (236 lbs, $714.78), 4B+1X (236 lbs, $663.00)',                                                                                         note:'Conflict &mdash; 4B+1X ideal: $669.95; rate set to cover 2A+2B+2Y'},
   {min:238, max:999, rate:739.95, type:'bump',    combos:'4A+2Y (238 lbs, $730.90), 4A+1X (240 lbs, $695.24)',                                                                                             note:'4A+1X ideal: $699.95; bumped by 4A+2Y in same bracket'}
+]);
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   UK
+   Costs: A=$184.73  B=$170.67  X=$290.84  Y=$176.19  Z=$50.58
+   One conflict: 236 lbs (2A+2B+2Y vs 4B+1X)
+   Z is most expensive per lb; creates multiple non-monotonic brackets
+───────────────────────────────────────────────────────────────────────────── */
+renderCalcTable('uk-calc-body',
+  ['uk-combo-count','uk-low-rate','uk-high-rate'],
+  {A:184.73, B:170.67, X:290.84, Y:176.19, Z:50.58},
+  {236:true},
+  {'1Y':true, '1B + 1Y':true, '4B':true, '4A + 1X':true}
+);
+
+renderShopifyTable('uk-shopify-body', [
+  /* ── Z standalones ── */
+  {min:0,   max:6,   rate:59.95,   type:'',        combos:'1Z (6 lbs, $50.58)',                                                                                                                              note:''},
+  {min:7,   max:12,  rate:109.95,  type:'',        combos:'2Z (12 lbs, $101.16)',                                                                                                                            note:''},
+  {min:13,  max:18,  rate:159.95,  type:'',        combos:'3Z (18 lbs, $151.74)',                                                                                                                            note:''},
+  {min:19,  max:24,  rate:209.95,  type:'',        combos:'4Z (24 lbs, $202.32)',                                                                                                                            note:''},
+  /* ── Single units (non-mono: cheaper per lb than Z) ── */
+  {min:25,  max:38,  rate:179.95,  type:'bump',    combos:'1B (38 lbs, $170.67)',                                                                                                                            note:'Non-mono &mdash; units ship cheaper per lb than Z'},
+  {min:39,  max:41,  rate:189.95,  type:'bump',    combos:'1A (39 lbs, $184.73), 1Y (41 lbs, $176.19)',                                                                                                     note:'1Y ideal: $179.95; bumped by 1A at same weight range'},
+  /* ── Unit + Z combos ── */
+  {min:42,  max:44,  rate:229.95,  type:'',        combos:'1B+1Z (44 lbs, $221.25)',                                                                                                                         note:''},
+  {min:45,  max:75,  rate:239.95,  type:'',        combos:'1A+1Z (45 lbs, $235.31)',                                                                                                                         note:''},
+  /* ── Two units ── */
+  {min:76,  max:77,  rate:349.95,  type:'',        combos:'2B (76 lbs, $341.34)',                                                                                                                            note:''},
+  {min:78,  max:83,  rate:369.95,  type:'bump',    combos:'2A (78 lbs, $369.46), 1B+1Y (79 lbs, $346.86), 1A+1Y (80 lbs, $360.92)',                                                                        note:'1B+1Y ideal: $349.95; bumped by 2A in same weight range'},
+  /* ── 1X standalone (non-mono: cheaper per lb than 2-unit combos) ── */
+  {min:84,  max:87,  rate:299.95,  type:'bump',    combos:'1X (84 lbs, $290.84)',                                                                                                                            note:'Non-mono &mdash; X cheaper per lb than unit combos in prior bracket'},
+  /* ── 2-unit + Z combos ── */
+  {min:88,  max:116, rate:479.95,  type:'',        combos:'2B+2Z (88 lbs, $442.50), 1A+1B+2Z (89 lbs, $456.56), 2A+2Z (90 lbs, $470.62)',                                                                 note:''},
+  /* ── 2-unit + Y combos ── */
+  {min:117, max:121, rate:549.95,  type:'',        combos:'2B+1Y (117 lbs, $517.53), 1A+1B+1Y (118 lbs, $531.59), 2A+1Y (119 lbs, $545.65)',                                                              note:''},
+  /* ── Unit + 1X combos (non-mono: X cheaper per lb than Y combos) ── */
+  {min:122, max:131, rate:479.95,  type:'bump',    combos:'1B+1X (122 lbs, $461.51), 1A+1X (123 lbs, $475.57)',                                                                                             note:'Non-mono &mdash; X cheaper to ship than Y; lower rate than prior bracket'},
+  /* ── 3-unit + Z combos ── */
+  {min:132, max:134, rate:699.95,  type:'',        combos:'3B+3Z (132 lbs, $663.75), 1A+2B+3Z (133 lbs, $677.81), 2A+1B+3Z (134 lbs, $691.87)',                                                           note:''},
+  /* ── 3A+3Z &amp; 4B ── */
+  {min:135, max:155, rate:709.95,  type:'bump',    combos:'3A+3Z (135 lbs, $705.93), 4B (152 lbs, $682.68)',                                                                                                note:'4B ideal: $689.95; bumped by 3A+3Z in same bracket'},
+  /* ── 4A standalone ── */
+  {min:156, max:159, rate:739.95,  type:'',        combos:'4A (156 lbs, $738.92)',                                                                                                                           note:''},
+  /* ── 2-unit + 1X combos (non-mono: X cheaper than Z-heavy combos) ── */
+  {min:160, max:167, rate:669.95,  type:'bump',    combos:'2B+1X (160 lbs, $632.18), 2A+1X (162 lbs, $660.30)',                                                                                             note:'Non-mono &mdash; X cheaper per lb than Z combos in prior bracket'},
+  /* ── 2X standalone (non-mono) ── */
+  {min:168, max:175, rate:589.95,  type:'bump',    combos:'2X (168 lbs, $581.68)',                                                                                                                           note:'Non-mono &mdash; 2X cheaper per lb than Z and unit combos above'},
+  /* ── 4-unit + 4Z combos ── */
+  {min:176, max:179, rate:929.95,  type:'',        combos:'4B+4Z (176 lbs, $885.00), 1A+3B+4Z (177 lbs, $899.06), 2A+2B+4Z (178 lbs, $913.12), 3A+1B+4Z (179 lbs, $927.18)',                             note:''},
+  {min:180, max:233, rate:949.95,  type:'',        combos:'4A+4Z (180 lbs, $941.24)',                                                                                                                        note:''},
+  /* ── Heaviest combos; conflict at 236 lbs ── */
+  {min:234, max:235, rate:1039.95, type:'',        combos:'4B+2Y (234 lbs, $1,035.06)',                                                                                                                      note:''},
+  {min:236, max:237, rate:1069.95, type:'conflict',combos:'2A+2B+2Y (236 lbs, $1,063.18), 4B+1X (236 lbs, $973.52)',                                                                                       note:'Conflict &mdash; 4B+1X ideal: $979.95; rate set to cover 2A+2B+2Y'},
+  {min:238, max:999, rate:1099.95, type:'bump',    combos:'4A+2Y (238 lbs, $1,091.30), 4A+1X (240 lbs, $1,029.76)',                                                                                        note:'4A+1X ideal: $1,029.95; bumped by 4A+2Y in same bracket'}
 ]);
 </script>
 </body>
