@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Non-Territorial U.S. Rate Card</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f1f5f9; color: #1e293b; }
+
+  .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; padding: 24px 32px; }
+  .header h1 { font-size: 22px; font-weight: 800; }
+  .header p { font-size: 13px; color: #94a3b8; margin-top: 6px; }
+
+  .tabs { display: flex; align-items: stretch; background: white; border-bottom: 2px solid #e2e8f0; padding: 0 32px; gap: 4px; }
+  .tab-group-label { padding: 0 8px 0 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: #94a3b8; display: flex; align-items: center; }
+  .tab { padding: 13px 20px; cursor: pointer; font-size: 13px; font-weight: 600; color: #64748b; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap; }
+  .tab.active { color: #2563eb; border-bottom-color: #2563eb; }
+  .tab-divider { width: 1px; background: #e2e8f0; margin: 8px 6px; }
+
+  .content { padding: 24px 32px; max-width: 1200px; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .item-legend {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border-radius: 12px; padding: 16px 22px; margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18); align-items: center;
+  }
+  .item-legend-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8; margin-right: 6px; flex-shrink: 0; }
+  .item-pill { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 6px 14px; font-size: 13px; }
+  .item-pill .key { border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0; color: white; }
+  .key-a { background: #2563eb; }
+  .key-b { background: #7c3aed; }
+  .key-x { background: #059669; }
+  .key-y { background: #d97706; }
+  .key-z { background: #dc2626; }
+  .item-pill .name { color: #e2e8f0; font-weight: 500; }
+
+  .summary-bar { display: flex; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
+  .summary-card { background: white; border-radius: 10px; padding: 14px 18px; flex: 1; min-width: 130px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .summary-card .val { font-size: 26px; font-weight: 800; color: #1e293b; }
+  .summary-card .lbl { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.6px; margin-top: 4px; }
+
+  .legend { display: flex; gap: 18px; margin-bottom: 14px; font-size: 12px; flex-wrap: wrap; align-items: center; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  thead { background: #1e293b; color: white; }
+  th { padding: 11px 14px; text-align: left; font-weight: 600; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; }
+  td { padding: 9px 14px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f8fafc; }
+  tr.conflict td { background: #fff7ed; }
+  tr.conflict:hover td { background: #ffedd5; }
+  tr.bump td { background: #fefce8; }
+  tr.bump:hover td { background: #fef9c3; }
+
+  .rate-std  { font-weight: 700; color: #059669; font-size: 13px; }
+  .rate-plus { font-weight: 700; color: #7c3aed; font-size: 13px; }
+  .margin-std  { color: #2563eb; font-size: 12px; font-weight: 600; }
+  .margin-plus { color: #9333ea; font-size: 12px; font-weight: 600; }
+  .cost { color: #475569; }
+  .combo-label { font-weight: 600; }
+  .combo-cell { font-size: 11px; color: #64748b; line-height: 1.5; }
+  .badge { display: inline-block; padding: 2px 7px; border-radius: 20px; font-size: 10px; font-weight: 700; margin-left: 5px; vertical-align: middle; }
+  .badge-conflict { background: #fed7aa; color: #c2410c; }
+  .badge-bump { background: #fef9c3; color: #854d0e; }
+  th.group-std  { background: #1e3a5f; }
+  th.group-plus { background: #3b1f6e; }
+
+  .note-box { border-left: 4px solid #f59e0b; background: white; border-radius: 6px; padding: 14px 18px; margin-bottom: 18px; font-size: 13px; line-height: 1.7; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .note-box strong { color: #b45309; }
+  .info-box { border-left: 4px solid #2563eb; background: #eff6ff; border-radius: 6px; padding: 14px 18px; margin-bottom: 18px; font-size: 13px; line-height: 1.8; }
+  .info-box ol { margin-left: 18px; }
+  .info-box strong { color: #1d4ed8; }
+
+  .shopify-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .print-btn { background: #2563eb; color: white; border: none; padding: 9px 18px; border-radius: 7px; cursor: pointer; font-size: 13px; font-weight: 600; }
+  .print-btn:hover { background: #1d4ed8; }
+  .rate-toggle-bar { display: flex; align-items: center; gap: 10px; }
+  .rate-toggle-label { font-size: 13px; font-weight: 600; color: #475569; }
+  .toggle-pill { display: flex; background: #e2e8f0; border-radius: 999px; padding: 3px; gap: 2px; }
+  .toggle-opt { padding: 6px 16px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer; color: #64748b; transition: all 0.18s; user-select: none; }
+  .toggle-opt.active { background: white; color: #1e293b; box-shadow: 0 1px 4px rgba(0,0,0,0.13); }
+  .toggle-opt.rounded.active { color: #7c3aed; }
+  .shopify-table td:nth-child(3) { font-size: 15px; }
+
+  @media print {
+    .tabs, .print-btn { display: none; }
+    .tab-content { display: block !important; page-break-after: always; }
+    body { background: white; }
+    .content { padding: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>&#128674; Non-Territorial U.S. Rate Card</h1>
+  <p>Weight-based rates for Shopify &middot; All costs covered &middot; Prices end in $9.95</p>
+</div>
+
+<div class="tabs">
+  <div class="tab-group-label">&#127802; Hawaii</div>
+  <div class="tab active" onclick="switchTab('hi-calc', this)">&#128202; Cost Calculations</div>
+  <div class="tab" onclick="switchTab('hi-shopify', this)">&#128722; Shopify Rate Card</div>
+  <div class="tab-divider"></div>
+  <div class="tab-group-label">&#127809; Canada</div>
+  <div class="tab" onclick="switchTab('ca-calc', this)">&#128202; Cost Calculations</div>
+  <div class="tab" onclick="switchTab('ca-shopify', this)">&#128722; Shopify Rate Card</div>
+</div>
+
+<div class="content">
+
+  <div class="item-legend">
+    <span class="item-legend-title">Items</span>
+    <div class="item-pill"><span class="key key-a">A</span><span class="name">Apex 1500</span></div>
+    <div class="item-pill"><span class="key key-b">B</span><span class="name">Apex 2160</span></div>
+    <div class="item-pill"><span class="key key-x">X</span><span class="name">Motorized Stand</span></div>
+    <div class="item-pill"><span class="key key-y">Y</span><span class="name">Pneumatic Stand</span></div>
+    <div class="item-pill"><span class="key key-z">Z</span><span class="name">Floor Stand</span></div>
+  </div>
+
+  <!-- HAWAII CALC -->
+  <div id="tab-hi-calc" class="tab-content active">
+    <div class="summary-bar">
+      <div class="summary-card"><div class="val" id="hi-combo-count">—</div><div class="lbl">Combinations</div></div>
+      <div class="summary-card"><div class="val" id="hi-low-rate">—</div><div class="lbl">Lowest Std. Rate</div></div>
+      <div class="summary-card"><div class="val" id="hi-high-rate">—</div><div class="lbl">Highest Std. Rate</div></div>
+      <div class="summary-card"><div class="val" style="color:#f59e0b">1</div><div class="lbl">Weight Conflicts</div></div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#fff7ed;border:1.5px solid #f59e0b"></div><span><strong>Orange:</strong> Same weight, different costs &mdash; higher rate applied</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#fefce8;border:1.5px solid #eab308"></div><span><strong>Yellow:</strong> Item lands in a higher Shopify bracket than its ideal rate</span></div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th rowspan="2">#</th>
+          <th rowspan="2">Combination</th>
+          <th rowspan="2">Weight</th>
+          <th rowspan="2">Shipping Cost</th>
+          <th colspan="2" class="group-std" style="text-align:center;border-left:2px solid #2e4a7a">Standard ($X9.95)</th>
+          <th colspan="2" class="group-plus" style="text-align:center;border-left:2px solid #5b2d9e">Rounded Up (+$10)</th>
+        </tr>
+        <tr>
+          <th class="group-std" style="border-left:2px solid #2e4a7a">Rate</th>
+          <th class="group-std">Margin</th>
+          <th class="group-plus" style="border-left:2px solid #5b2d9e">Rate</th>
+          <th class="group-plus">Margin</th>
+        </tr>
+      </thead>
+      <tbody id="hi-calc-body"></tbody>
+    </table>
+    <p style="margin-top:10px;font-size:12px;color:#94a3b8;">&#8224; Rates shown are ideal. In Shopify, some items share brackets and may be charged the bracket rate &mdash; see Shopify tab.</p>
+  </div>
+
+  <!-- HAWAII SHOPIFY -->
+  <div id="tab-hi-shopify" class="tab-content">
+    <div class="shopify-top">
+      <div class="rate-toggle-bar">
+        <span class="rate-toggle-label">Customer rates:</span>
+        <div class="toggle-pill">
+          <span class="toggle-opt active" onclick="toggleRates('hi-shopify-body', this, false)">Standard</span>
+          <span class="toggle-opt rounded" onclick="toggleRates('hi-shopify-body', this, true)">Rounded Up +$10</span>
+        </div>
+      </div>
+      <button class="print-btn" onclick="window.print()">&#128424; Print / Save PDF</button>
+    </div>
+    <div class="info-box">
+      <strong>How to enter in Shopify:</strong>
+      <ol>
+        <li>Go to <em>Settings &rarr; Shipping &amp; Delivery</em></li>
+        <li>Click your <strong>Hawaii</strong> shipping zone (create it first if needed)</li>
+        <li>Add a rate &rarr; select <em>"Based on order weight"</em></li>
+        <li>Enter each row below as a weight condition with the listed price</li>
+        <li>Ensure all product weights are set correctly in your Shopify catalog</li>
+      </ol>
+    </div>
+    <div class="note-box">
+      <strong>One weight conflict resolved (orange):</strong><br>
+      <strong>236 lbs:</strong> 2A+2B+2Y ($247.96, needs $249.95) and 4B+1X ($262.06, needs $269.95) share the same weight. Rate set to <strong>$269.95</strong> &mdash; 2A+2B+2Y customers overcharged by $20.<br><br>
+      <strong>Non-monotonic brackets (yellow):</strong> Floor Stand (Z) is expensive to ship relative to its weight. This means some heavier brackets charge <em>less</em> than lighter ones &mdash; for example, 4B (152 lbs) at $189.95 vs. 4Z (24 lbs) at $79.95 &mdash; because units ship cheaper per pound than Z items. Shopify handles each bracket independently so this works correctly at checkout.
+    </div>
+    <table class="shopify-table">
+      <thead><tr><th>Min Weight (lbs)</th><th>Max Weight (lbs)</th><th>Shopify Rate</th><th>Combinations in This Range</th><th>Notes</th></tr></thead>
+      <tbody id="hi-shopify-body"></tbody>
+    </table>
+  </div>
+
+  <!-- CANADA CALC -->
+  <div id="tab-ca-calc" class="tab-content">
+    <div class="summary-bar">
+      <div class="summary-card"><div class="val" id="ca-combo-count">—</div><div class="lbl">Combinations</div></div>
+      <div class="summary-card"><div class="val" id="ca-low-rate">—</div><div class="lbl">Lowest Std. Rate</div></div>
+      <div class="summary-card"><div class="val" id="ca-high-rate">—</div><div class="lbl">Highest Std. Rate</div></div>
+      <div class="summary-card"><div class="val" style="color:#f59e0b">1</div><div class="lbl">Weight Conflicts</div></div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#fff7ed;border:1.5px solid #f59e0b"></div><span><strong>Orange:</strong> Same weight, different costs &mdash; higher rate applied</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#fefce8;border:1.5px solid #eab308"></div><span><strong>Yellow:</strong> Item lands in a higher Shopify bracket than its ideal rate</span></div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th rowspan="2">#</th>
+          <th rowspan="2">Combination</th>
+          <th rowspan="2">Weight</th>
+          <th rowspan="2">Shipping Cost (CA)</th>
+          <th colspan="2" class="group-std" style="text-align:center;border-left:2px solid #2e4a7a">Standard ($X9.95)</th>
+          <th colspan="2" class="group-plus" style="text-align:center;border-left:2px solid #5b2d9e">Rounded Up (+$10)</th>
+        </tr>
+        <tr>
+          <th class="group-std" style="border-left:2px solid #2e4a7a">Rate</th>
+          <th class="group-std">Margin</th>
+          <th class="group-plus" style="border-left:2px solid #5b2d9e">Rate</th>
+          <th class="group-plus">Margin</th>
+        </tr>
+      </thead>
+      <tbody id="ca-calc-body"></tbody>
+    </table>
+    <p style="margin-top:10px;font-size:12px;color:#94a3b8;">&#8224; Ideal rate is the lowest $X9.95 price covering cost. Actual bracket rate may differ &mdash; see Canada Shopify tab.</p>
+  </div>
+
+  <!-- CANADA SHOPIFY -->
+  <div id="tab-ca-shopify" class="tab-content">
+    <div class="shopify-top">
+      <div class="rate-toggle-bar">
+        <span class="rate-toggle-label">Customer rates:</span>
+        <div class="toggle-pill">
+          <span class="toggle-opt active" onclick="toggleRates('ca-shopify-body', this, false)">Standard</span>
+          <span class="toggle-opt rounded" onclick="toggleRates('ca-shopify-body', this, true)">Rounded Up +$10</span>
+        </div>
+      </div>
+      <button class="print-btn" onclick="window.print()">&#128424; Print / Save PDF</button>
+    </div>
+    <div class="info-box">
+      <strong>How to enter in Shopify:</strong>
+      <ol>
+        <li>Go to <em>Settings &rarr; Shipping &amp; Delivery</em></li>
+        <li>Click your <strong>Canada</strong> shipping zone (create it first if needed)</li>
+        <li>Add a rate &rarr; select <em>"Based on order weight"</em></li>
+        <li>Enter each row below as a weight condition with the listed price</li>
+        <li>Ensure all product weights are set correctly in your Shopify catalog</li>
+      </ol>
+    </div>
+    <div class="note-box">
+      <strong>One weight conflict resolved (orange):</strong><br>
+      <strong>236 lbs:</strong> 2A+2B+2Y ($714.78, needs $719.95) and 4B+1X ($663.00, needs $669.95) share the same weight. Rate set to <strong>$719.95</strong> &mdash; 4B+1X customers overcharged by $50.<br><br>
+      <strong>Non-monotonic brackets (yellow):</strong> In Canada, Floor Stand (Z) ships very expensively relative to weight, while Motorized Stand (X) and Pneumatic Stand (Y) ship relatively cheaply. This creates several brackets where a heavier order costs less than a lighter one. For example, 1X (84 lbs) at $179.95 sits between 2B (76 lbs) at $249.95 and 2B+2Z (88 lbs) at $329.95. Shopify handles each bracket independently so all costs are covered at checkout.
+    </div>
+    <table class="shopify-table">
+      <thead><tr><th>Min Weight (lbs)</th><th>Max Weight (lbs)</th><th>Shopify Rate</th><th>Combinations in This Range</th><th>Notes</th></tr></thead>
+      <tbody id="ca-shopify-body"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+var combos = [
+  {label:'1Z',           c:{Z:1}},
+  {label:'2Z',           c:{Z:2}},
+  {label:'3Z',           c:{Z:3}},
+  {label:'4Z',           c:{Z:4}},
+  {label:'1B',           c:{B:1}},
+  {label:'1A',           c:{A:1}},
+  {label:'1Y',           c:{Y:1}},
+  {label:'1B + 1Z',      c:{B:1,Z:1}},
+  {label:'1A + 1Z',      c:{A:1,Z:1}},
+  {label:'2B',           c:{B:2}},
+  {label:'2A',           c:{A:2}},
+  {label:'1B + 1Y',      c:{B:1,Y:1}},
+  {label:'1A + 1Y',      c:{A:1,Y:1}},
+  {label:'1X',           c:{X:1}},
+  {label:'2B + 2Z',      c:{B:2,Z:2}},
+  {label:'1A + 1B + 2Z', c:{A:1,B:1,Z:2}},
+  {label:'2A + 2Z',      c:{A:2,Z:2}},
+  {label:'2B + 1Y',      c:{B:2,Y:1}},
+  {label:'1A + 1B + 1Y', c:{A:1,B:1,Y:1}},
+  {label:'2A + 1Y',      c:{A:2,Y:1}},
+  {label:'1B + 1X',      c:{B:1,X:1}},
+  {label:'1A + 1X',      c:{A:1,X:1}},
+  {label:'3B + 3Z',      c:{B:3,Z:3}},
+  {label:'1A + 2B + 3Z', c:{A:1,B:2,Z:3}},
+  {label:'2A + 1B + 3Z', c:{A:2,B:1,Z:3}},
+  {label:'3A + 3Z',      c:{A:3,Z:3}},
+  {label:'4B',           c:{B:4}},
+  {label:'4A',           c:{A:4}},
+  {label:'2B + 1X',      c:{B:2,X:1}},
+  {label:'2A + 1X',      c:{A:2,X:1}},
+  {label:'2X',           c:{X:2}},
+  {label:'4B + 4Z',      c:{B:4,Z:4}},
+  {label:'1A + 3B + 4Z', c:{A:1,B:3,Z:4}},
+  {label:'2A + 2B + 4Z', c:{A:2,B:2,Z:4}},
+  {label:'3A + 1B + 4Z', c:{A:3,B:1,Z:4}},
+  {label:'4A + 4Z',      c:{A:4,Z:4}},
+  {label:'4B + 2Y',      c:{B:4,Y:2}},
+  {label:'2A + 2B + 2Y', c:{A:2,B:2,Y:2}},
+  {label:'4B + 1X',      c:{B:4,X:1}},
+  {label:'4A + 2Y',      c:{A:4,Y:2}},
+  {label:'4A + 1X',      c:{A:4,X:1}}
+];
+
+var weights = {A:39, B:38, X:84, Y:41, Z:6};
+
+function calcCombo(costs, combo) {
+  var w = 0, cost = 0;
+  for (var k in combo) { w += weights[k] * combo[k]; cost += costs[k] * combo[k]; }
+  return {w: w, cost: Math.round(cost * 100) / 100};
+}
+
+function nextRate(cost) {
+  var base = Math.ceil(cost / 10) * 10 - 0.05;
+  if (base < cost) base += 10;
+  return Math.round(base * 100) / 100;
+}
+
+function fmt(n) { return '$' + n.toFixed(2); }
+
+function renderCalcTable(bodyId, summaryIds, costs, conflictWeights, bumpLabels) {
+  var tbody = document.getElementById(bodyId);
+  if (!tbody) return;
+
+  var rows = combos.map(function(co) {
+    var r = calcCombo(costs, co.c);
+    var rate = nextRate(r.cost);
+    return {label: co.label, w: r.w, cost: r.cost, rate: rate, ratePlus: rate + 10};
+  });
+  rows.sort(function(a, b) { return (a.w - b.w) || (a.cost - b.cost); });
+
+  var rates = rows.map(function(r) { return r.rate; });
+  document.getElementById(summaryIds[0]).textContent = rows.length;
+  document.getElementById(summaryIds[1]).textContent = fmt(Math.min.apply(null, rates));
+  document.getElementById(summaryIds[2]).textContent = fmt(Math.max.apply(null, rates));
+
+  for (var i = 0; i < rows.length; i++) {
+    var row = rows[i];
+    var isConflict = !!conflictWeights[row.w];
+    var isBump     = !isConflict && !!bumpLabels[row.label];
+    var tr = document.createElement('tr');
+    if (isConflict) tr.className = 'conflict';
+    else if (isBump) tr.className = 'bump';
+    var badge = isConflict
+      ? '<span class="badge badge-conflict">Weight conflict</span>'
+      : isBump ? '<span class="badge badge-bump">Range bump</span>' : '';
+    var mStd  = (row.rate     - row.cost).toFixed(2);
+    var mPlus = (row.ratePlus - row.cost).toFixed(2);
+    tr.innerHTML =
+      '<td style="color:#94a3b8;font-size:12px">' + (i+1) + '</td>' +
+      '<td class="combo-label">' + row.label + badge + '</td>' +
+      '<td>' + row.w + ' lbs</td>' +
+      '<td class="cost">' + fmt(row.cost) + '</td>' +
+      '<td class="rate-std" style="border-left:2px solid #e2e8f0">' + fmt(row.rate) + '</td>' +
+      '<td class="margin-std">+$' + mStd + '</td>' +
+      '<td class="rate-plus" style="border-left:2px solid #e2e8f0">' + fmt(row.ratePlus) + '</td>' +
+      '<td class="margin-plus">+$' + mPlus + '</td>';
+    tbody.appendChild(tr);
+  }
+}
+
+function renderShopifyTable(bodyId, ranges) {
+  var tbody = document.getElementById(bodyId);
+  if (!tbody) return;
+  for (var i = 0; i < ranges.length; i++) {
+    var r = ranges[i];
+    var tr = document.createElement('tr');
+    if (r.type === 'conflict') tr.className = 'conflict';
+    else if (r.type === 'bump') tr.className = 'bump';
+    var maxDisp = r.max >= 999 ? '999 (no limit)' : String(r.max);
+    tr.innerHTML =
+      '<td><strong>' + r.min + ' lbs</strong></td>' +
+      '<td><strong>' + maxDisp + ' lbs</strong></td>' +
+      '<td class="rate-std" data-rate="' + r.rate + '">' + fmt(r.rate) + '</td>' +
+      '<td class="combo-cell">' + r.combos + '</td>' +
+      '<td style="font-size:11px;color:#92400e">' + r.note + '</td>';
+    tbody.appendChild(tr);
+  }
+}
+
+function toggleRates(bodyId, btn, roundUp) {
+  var pill = btn.parentNode;
+  var opts = pill.querySelectorAll('.toggle-opt');
+  for (var i = 0; i < opts.length; i++) opts[i].classList.remove('active');
+  btn.classList.add('active');
+  var tbody = document.getElementById(bodyId);
+  if (!tbody) return;
+  var cells = tbody.querySelectorAll('td[data-rate]');
+  for (var j = 0; j < cells.length; j++) {
+    var base = parseFloat(cells[j].getAttribute('data-rate'));
+    cells[j].textContent = fmt(roundUp ? base + 10 : base);
+  }
+}
+
+function switchTab(name, el) {
+  var tabs   = document.querySelectorAll('.tab');
+  var panels = document.querySelectorAll('.tab-content');
+  for (var i = 0; i < tabs.length;   i++) tabs[i].classList.remove('active');
+  for (var j = 0; j < panels.length; j++) panels[j].classList.remove('active');
+  var target = document.getElementById('tab-' + name);
+  if (target) target.classList.add('active');
+  el.classList.add('active');
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   HAWAII
+   Costs: A=$40.51  B=$39.56  X=$103.82  Y=$43.91  Z=$19.51
+   One conflict: 236 lbs (2A+2B+2Y vs 4B+1X)
+   Bumped in brackets: 4B (ideal $159.95 → bracket $189.95), 4A (ideal $169.95 → $189.95)
+   Non-monotonic brackets highlighted in yellow for transparency
+───────────────────────────────────────────────────────────────────────────── */
+renderCalcTable('hi-calc-body',
+  ['hi-combo-count','hi-low-rate','hi-high-rate'],
+  {A:40.51, B:39.56, X:103.82, Y:43.91, Z:19.51},
+  {236:true},
+  {'4B':true, '4A':true}
+);
+
+renderShopifyTable('hi-shopify-body', [
+  /* ── Z standalones ── */
+  {min:0,   max:6,   rate:19.95,  type:'',        combos:'1Z (6 lbs, $19.51)',                                                                                                                              note:''},
+  {min:7,   max:12,  rate:39.95,  type:'',        combos:'2Z (12 lbs, $39.02)',                                                                                                                             note:''},
+  {min:13,  max:18,  rate:59.95,  type:'',        combos:'3Z (18 lbs, $58.53)',                                                                                                                             note:''},
+  {min:19,  max:24,  rate:79.95,  type:'',        combos:'4Z (24 lbs, $78.04)',                                                                                                                             note:''},
+  /* ── Single units (non-mono: cheaper per lb than Z) ── */
+  {min:25,  max:38,  rate:39.95,  type:'bump',    combos:'1B (38 lbs, $39.56)',                                                                                                                             note:'Non-mono &mdash; units ship cheaper per lb than Z'},
+  {min:39,  max:41,  rate:49.95,  type:'',        combos:'1A (39 lbs, $40.51), 1Y (41 lbs, $43.91)',                                                                                                        note:''},
+  /* ── Unit + Z combos ── */
+  {min:42,  max:44,  rate:59.95,  type:'',        combos:'1B+1Z (44 lbs, $59.07)',                                                                                                                          note:''},
+  {min:45,  max:75,  rate:69.95,  type:'',        combos:'1A+1Z (45 lbs, $60.02)',                                                                                                                          note:''},
+  /* ── Two units ── */
+  {min:76,  max:77,  rate:79.95,  type:'',        combos:'2B (76 lbs, $79.12)',                                                                                                                             note:''},
+  {min:78,  max:83,  rate:89.95,  type:'',        combos:'2A (78 lbs, $81.02), 1B+1Y (79 lbs, $83.47), 1A+1Y (80 lbs, $84.42)',                                                                           note:''},
+  /* ── 1X standalone (non-mono vs Z combos) ── */
+  {min:84,  max:87,  rate:109.95, type:'bump',    combos:'1X (84 lbs, $103.82)',                                                                                                                            note:'Non-mono &mdash; X cheaper per lb than Z combos'},
+  /* ── 2-unit + Z combos ── */
+  {min:88,  max:89,  rate:119.95, type:'',        combos:'2B+2Z (88 lbs, $118.14), 1A+1B+2Z (89 lbs, $119.09)',                                                                                           note:''},
+  {min:90,  max:121, rate:129.95, type:'',        combos:'2A+2Z (90 lbs, $120.04), 2B+1Y (117 lbs, $123.03), 1A+1B+1Y (118 lbs, $123.98), 2A+1Y (119 lbs, $124.93)',                                    note:''},
+  /* ── Unit + 1X combos ── */
+  {min:122, max:131, rate:149.95, type:'',        combos:'1B+1X (122 lbs, $143.38), 1A+1X (123 lbs, $144.33)',                                                                                             note:''},
+  /* ── 3-unit + Z combos ── */
+  {min:132, max:134, rate:179.95, type:'',        combos:'3B+3Z (132 lbs, $177.21), 1A+2B+3Z (133 lbs, $178.16), 2A+1B+3Z (134 lbs, $179.11)',                                                           note:''},
+  /* ── Heavy combos (4-unit &amp; 2-unit+1X; non-mono: bumped into Z bracket) ── */
+  {min:135, max:167, rate:189.95, type:'bump',    combos:'3A+3Z (135 lbs, $180.06), 4B (152 lbs, $158.24), 4A (156 lbs, $162.04), 2B+1X (160 lbs, $182.94), 2A+1X (162 lbs, $184.84)',                  note:'4B &amp; 4A ideal: $159.95 &amp; $169.95; X combos cover at bracket rate'},
+  /* ── 2X standalone (non-mono vs Z-heavy bracket above) ── */
+  {min:168, max:175, rate:209.95, type:'bump',    combos:'2X (168 lbs, $207.64)',                                                                                                                           note:'Non-mono &mdash; 2X cheaper per lb than Z combos at 135&ndash;167 lbs'},
+  /* ── 4-unit + 4Z combos ── */
+  {min:176, max:179, rate:239.95, type:'',        combos:'4B+4Z (176 lbs, $236.28), 1A+3B+4Z (177 lbs, $237.23), 2A+2B+4Z (178 lbs, $238.18), 3A+1B+4Z (179 lbs, $239.13)',                             note:''},
+  {min:180, max:235, rate:249.95, type:'',        combos:'4A+4Z (180 lbs, $240.08), 4B+2Y (234 lbs, $246.06)',                                                                                             note:''},
+  /* ── 4-unit heaviest combos; conflict at 236 lbs ── */
+  {min:236, max:999, rate:269.95, type:'conflict',combos:'2A+2B+2Y (236 lbs, $247.96), 4B+1X (236 lbs, $262.06), 4A+2Y (238 lbs, $249.86), 4A+1X (240 lbs, $265.86)',                                   note:'Conflict at 236 lbs &mdash; 2A+2B+2Y ideal: $249.95'}
+]);
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   CANADA
+   Costs: A=$130.44  B=$122.38  X=$173.48  Y=$104.57  Z=$34.25
+   One conflict: 236 lbs (2A+2B+2Y vs 4B+1X)
+   Multiple non-monotonic brackets due to Z being very expensive vs X/Y per lb
+───────────────────────────────────────────────────────────────────────────── */
+renderCalcTable('ca-calc-body',
+  ['ca-combo-count','ca-low-rate','ca-high-rate'],
+  {A:130.44, B:122.38, X:173.48, Y:104.57, Z:34.25},
+  {236:true},
+  {'1Y':true, '1B + 1Y':true, '1A + 1Y':true, '2B + 1X':true, '4A + 1X':true}
+);
+
+renderShopifyTable('ca-shopify-body', [
+  /* ── Z standalones ── */
+  {min:0,   max:6,   rate:39.95,  type:'',        combos:'1Z (6 lbs, $34.25)',                                                                                                                              note:''},
+  {min:7,   max:12,  rate:69.95,  type:'',        combos:'2Z (12 lbs, $68.50)',                                                                                                                             note:''},
+  {min:13,  max:18,  rate:109.95, type:'',        combos:'3Z (18 lbs, $102.75)',                                                                                                                            note:''},
+  {min:19,  max:24,  rate:139.95, type:'',        combos:'4Z (24 lbs, $137.00)',                                                                                                                            note:''},
+  /* ── Single units (non-mono: cheaper per lb than Z) ── */
+  {min:25,  max:38,  rate:129.95, type:'bump',    combos:'1B (38 lbs, $122.38)',                                                                                                                            note:'Non-mono &mdash; 1B cheaper per lb than 4Z'},
+  {min:39,  max:41,  rate:139.95, type:'bump',    combos:'1A (39 lbs, $130.44), 1Y (41 lbs, $104.57)',                                                                                                     note:'1Y ideal: $109.95; bumped by 1A at same weight range'},
+  /* ── Unit + Z combos ── */
+  {min:42,  max:44,  rate:159.95, type:'',        combos:'1B+1Z (44 lbs, $156.63)',                                                                                                                         note:''},
+  {min:45,  max:75,  rate:169.95, type:'',        combos:'1A+1Z (45 lbs, $164.69)',                                                                                                                         note:''},
+  /* ── Two units ── */
+  {min:76,  max:77,  rate:249.95, type:'',        combos:'2B (76 lbs, $244.76)',                                                                                                                            note:''},
+  {min:78,  max:83,  rate:269.95, type:'bump',    combos:'2A (78 lbs, $260.88), 1B+1Y (79 lbs, $226.95), 1A+1Y (80 lbs, $235.01)',                                                                        note:'1B+1Y &amp; 1A+1Y bumped; Y cheaper to ship than base units'},
+  /* ── 1X standalone (non-mono: cheaper per lb than 2-unit combos) ── */
+  {min:84,  max:87,  rate:179.95, type:'bump',    combos:'1X (84 lbs, $173.48)',                                                                                                                            note:'Non-mono &mdash; X cheaper per lb than unit combos above'},
+  /* ── 2-unit + Z combos ── */
+  {min:88,  max:116, rate:329.95, type:'',        combos:'2B+2Z (88 lbs, $313.26), 1A+1B+2Z (89 lbs, $321.32), 2A+2Z (90 lbs, $329.38)',                                                                 note:''},
+  /* ── 2-unit + Y combos ── */
+  {min:117, max:121, rate:369.95, type:'',        combos:'2B+1Y (117 lbs, $349.33), 1A+1B+1Y (118 lbs, $357.39), 2A+1Y (119 lbs, $365.45)',                                                              note:''},
+  /* ── Unit + 1X combos (non-mono: X cheaper per lb than Y) ── */
+  {min:122, max:131, rate:309.95, type:'bump',    combos:'1B+1X (122 lbs, $295.86), 1A+1X (123 lbs, $303.92)',                                                                                             note:'Non-mono &mdash; X cheaper to ship than Y; lower rate than prior bracket'},
+  /* ── 3-unit + Z combos ── */
+  {min:132, max:134, rate:489.95, type:'',        combos:'3B+3Z (132 lbs, $469.89), 1A+2B+3Z (133 lbs, $477.95), 2A+1B+3Z (134 lbs, $486.01)',                                                           note:''},
+  /* ── 3&ndash;4 unit combos ── */
+  {min:135, max:155, rate:499.95, type:'',        combos:'3A+3Z (135 lbs, $494.07), 4B (152 lbs, $489.52)',                                                                                                note:''},
+  {min:156, max:159, rate:529.95, type:'',        combos:'4A (156 lbs, $521.76)',                                                                                                                           note:''},
+  /* ── 2-unit + 1X combos (non-mono: X cheaper than Z-heavy combos) ── */
+  {min:160, max:167, rate:439.95, type:'bump',    combos:'2B+1X (160 lbs, $418.24), 2A+1X (162 lbs, $434.36)',                                                                                             note:'Non-mono &mdash; X cheaper per lb than Z combos in prior bracket'},
+  /* ── 2X standalone (non-mono) ── */
+  {min:168, max:175, rate:349.95, type:'bump',    combos:'2X (168 lbs, $346.96)',                                                                                                                           note:'Non-mono &mdash; 2X cheaper per lb than Z and unit combos above'},
+  /* ── 4-unit + 4Z combos ── */
+  {min:176, max:233, rate:659.95, type:'',        combos:'4B+4Z (176 lbs, $626.52), 1A+3B+4Z (177 lbs, $634.58), 2A+2B+4Z (178 lbs, $642.64), 3A+1B+4Z (179 lbs, $650.70), 4A+4Z (180 lbs, $658.76)',  note:''},
+  /* ── Heaviest combos; conflict at 236 lbs ── */
+  {min:234, max:235, rate:699.95, type:'',        combos:'4B+2Y (234 lbs, $698.66)',                                                                                                                        note:''},
+  {min:236, max:237, rate:719.95, type:'conflict',combos:'2A+2B+2Y (236 lbs, $714.78), 4B+1X (236 lbs, $663.00)',                                                                                         note:'Conflict &mdash; 4B+1X ideal: $669.95; rate set to cover 2A+2B+2Y'},
+  {min:238, max:999, rate:739.95, type:'bump',    combos:'4A+2Y (238 lbs, $730.90), 4A+1X (240 lbs, $695.24)',                                                                                             note:'4A+1X ideal: $699.95; bumped by 4A+2Y in same bracket'}
+]);
+</script>
+</body>
+</html>
