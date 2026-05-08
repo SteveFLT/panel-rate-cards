@@ -11,11 +11,23 @@
   .header h1 { font-size: 22px; font-weight: 800; }
   .header p { font-size: 13px; color: #94a3b8; margin-top: 6px; }
 
-  .tabs { display: flex; align-items: stretch; background: white; border-bottom: 2px solid #e2e8f0; padding: 0 32px; gap: 4px; }
-  .tab-group-label { padding: 0 8px 0 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: #94a3b8; display: flex; align-items: center; }
-  .tab { padding: 13px 20px; cursor: pointer; font-size: 13px; font-weight: 600; color: #64748b; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap; }
-  .tab.active { color: #2563eb; border-bottom-color: #2563eb; }
-  .tab-divider { width: 1px; background: #e2e8f0; margin: 8px 6px; }
+  .tabs { display: flex; align-items: flex-end; background: #f8fafc; border-bottom: 2px solid #e2e8f0; padding: 10px 32px 0; gap: 8px; flex-wrap: wrap; }
+  .tab-group { display: flex; align-items: stretch; border-radius: 10px 10px 0 0; padding: 0 6px; box-shadow: 0 -1px 0 rgba(0,0,0,0.04) inset; }
+  .tab-group-label { padding: 0 10px 0 8px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.7px; display: flex; align-items: center; }
+  .tab { padding: 13px 18px; cursor: pointer; font-size: 13px; font-weight: 600; color: #475569; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap; }
+  .tab.active { border-bottom-color: currentColor; }
+
+  .tab-group.hi              { background: #cffafe; }
+  .tab-group.hi .tab-group-label { color: #0e7490; }
+  .tab-group.hi .tab.active  { color: #0891b2; }
+  .tab-group.ca              { background: #fee2e2; }
+  .tab-group.ca .tab-group-label { color: #b91c1c; }
+  .tab-group.ca .tab.active  { color: #dc2626; }
+  .tab-group.uk              { background: #e0e7ff; opacity: 0.85; }
+  .tab-group.uk .tab-group-label { color: #4338ca; }
+  .tab-group.uk .tab         { color: #6366f1; }
+  .tab-group.uk .tab.active  { color: #4338ca; }
+  .badge-soon { display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 9px; font-weight: 800; margin-left: 7px; background: #4338ca; color: white; vertical-align: middle; letter-spacing: 0.4px; }
 
   .content { padding: 24px 32px; max-width: 1200px; }
   .tab-content { display: none; }
@@ -87,9 +99,16 @@
   .toggle-opt.rounded.active { color: #7c3aed; }
   .shopify-table td:nth-child(3) { font-size: 15px; }
 
+  .placeholder-panel { background: white; border: 2px dashed #c7d2fe; border-radius: 12px; padding: 64px 40px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .placeholder-panel .pl-flag { font-size: 64px; margin-bottom: 14px; line-height: 1; }
+  .placeholder-panel h2 { font-size: 22px; color: #4338ca; margin-bottom: 10px; font-weight: 800; }
+  .placeholder-panel p { color: #64748b; font-size: 14px; max-width: 520px; margin: 0 auto 8px; line-height: 1.65; }
+  .placeholder-panel .pl-tag { display: inline-block; margin-top: 14px; padding: 6px 14px; border-radius: 999px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; background: #e0e7ff; color: #4338ca; }
+
   @media print {
     .tabs, .print-btn { display: none; }
     .tab-content { display: block !important; page-break-after: always; }
+    .tab-content.placeholder-tab { display: none !important; }
     body { background: white; }
     .content { padding: 0; }
   }
@@ -103,13 +122,21 @@
 </div>
 
 <div class="tabs">
-  <div class="tab-group-label">&#127802; Hawaii</div>
-  <div class="tab active" onclick="switchTab('hi-calc', this)">&#128202; Cost Calculations</div>
-  <div class="tab" onclick="switchTab('hi-shopify', this)">&#128722; Shopify Rate Card</div>
-  <div class="tab-divider"></div>
-  <div class="tab-group-label">&#127809; Canada</div>
-  <div class="tab" onclick="switchTab('ca-calc', this)">&#128202; Cost Calculations</div>
-  <div class="tab" onclick="switchTab('ca-shopify', this)">&#128722; Shopify Rate Card</div>
+  <div class="tab-group hi">
+    <div class="tab-group-label">&#127802; Hawaii</div>
+    <div class="tab active" onclick="switchTab('hi-calc', this)">&#128202; Cost Calculations</div>
+    <div class="tab" onclick="switchTab('hi-shopify', this)">&#128722; Shopify Rate Card</div>
+  </div>
+  <div class="tab-group ca">
+    <div class="tab-group-label">&#127809; Canada</div>
+    <div class="tab" onclick="switchTab('ca-calc', this)">&#128202; Cost Calculations</div>
+    <div class="tab" onclick="switchTab('ca-shopify', this)">&#128722; Shopify Rate Card</div>
+  </div>
+  <div class="tab-group uk">
+    <div class="tab-group-label">&#127468;&#127463; United Kingdom</div>
+    <div class="tab" onclick="switchTab('uk-calc', this)">&#128202; Cost Calculations<span class="badge-soon">Soon</span></div>
+    <div class="tab" onclick="switchTab('uk-shopify', this)">&#128722; Shopify Rate Card<span class="badge-soon">Soon</span></div>
+  </div>
 </div>
 
 <div class="content">
@@ -255,6 +282,26 @@
       <thead><tr><th>Min Weight (lbs)</th><th>Max Weight (lbs)</th><th>Shopify Rate</th><th>Combinations in This Range</th><th>Notes</th></tr></thead>
       <tbody id="ca-shopify-body"></tbody>
     </table>
+  </div>
+
+  <!-- UK CALC (placeholder) -->
+  <div id="tab-uk-calc" class="tab-content placeholder-tab">
+    <div class="placeholder-panel">
+      <div class="pl-flag">&#127468;&#127463;</div>
+      <h2>UK Cost Calculations &mdash; coming soon</h2>
+      <p>Carrier costs, weight conflicts, and ideal rates for the United Kingdom shipping zone will appear here once finalized.</p>
+      <span class="pl-tag">Awaiting Carrier Quotes</span>
+    </div>
+  </div>
+
+  <!-- UK SHOPIFY (placeholder) -->
+  <div id="tab-uk-shopify" class="tab-content placeholder-tab">
+    <div class="placeholder-panel">
+      <div class="pl-flag">&#127468;&#127463;</div>
+      <h2>UK Shopify Rate Card &mdash; coming soon</h2>
+      <p>Weight-based brackets for the United Kingdom shipping zone will be published here for direct entry into Shopify, alongside conflict and bump notes.</p>
+      <span class="pl-tag">Awaiting Carrier Quotes</span>
+    </div>
   </div>
 
 </div>
