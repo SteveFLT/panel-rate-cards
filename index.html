@@ -28,9 +28,36 @@
   .tab-group.uk .tab-group-label { color: #4338ca; }
   .tab-group.uk .tab.active  { color: #4338ca; }
 
-  .content { padding: 24px 32px; max-width: 1200px; }
+  .content { padding: 24px 32px; max-width: 1600px; }
+  .layout-split { display: flex; gap: 24px; align-items: flex-start; }
+  .tab-area { flex: 1; min-width: 0; }
   .tab-content { display: none; }
   .tab-content.active { display: block; }
+
+  .viz-panel { flex: 0 0 360px; position: sticky; top: 16px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.10); padding: 18px; display: none; }
+  .viz-panel.open { display: block; }
+  .viz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .viz-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.7px; color: #94a3b8; }
+  .viz-close { background: #f1f5f9; border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 18px; color: #64748b; line-height: 1; display: flex; align-items: center; justify-content: center; }
+  .viz-close:hover { background: #e2e8f0; color: #1e293b; }
+  .viz-combo-label { font-size: 18px; font-weight: 800; color: #1e293b; line-height: 1.2; }
+  .viz-meta { font-size: 12px; color: #64748b; margin: 4px 0 14px; }
+  .viz-canvas { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; min-height: 220px; display: flex; align-items: center; justify-content: center; }
+  .viz-svg { width: 100%; height: auto; max-height: 280px; display: block; }
+  .viz-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .combo-pill { background: #f1f5f9; border: 1px solid #e2e8f0; padding: 5px 11px; border-radius: 999px; font-size: 11px; font-weight: 700; cursor: pointer; color: #475569; font-family: inherit; }
+  .combo-pill:hover { background: #e2e8f0; }
+  .combo-pill.active { background: #1e293b; border-color: #1e293b; color: white; }
+  .viz-scale { font-size: 10px; color: #94a3b8; text-align: center; margin-top: 8px; letter-spacing: 0.4px; }
+  tr[data-combos] { cursor: pointer; }
+  tr.viz-row-active td { background: #dbeafe !important; box-shadow: inset 4px 0 0 #2563eb; }
+  tr.viz-row-active.conflict td { background: #fed7aa !important; }
+  tr.viz-row-active.bump td { background: #fef08a !important; }
+
+  @media (max-width: 1100px) {
+    .layout-split { flex-direction: column; }
+    .viz-panel { position: static; flex: 0 0 auto; width: 100%; }
+  }
 
   .item-legend {
     display: flex; flex-wrap: wrap; gap: 10px;
@@ -105,8 +132,9 @@
   .placeholder-panel .pl-tag { display: inline-block; margin-top: 14px; padding: 6px 14px; border-radius: 999px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; background: #e0e7ff; color: #4338ca; }
 
   @media print {
-    .tabs, .print-btn { display: none; }
+    .tabs, .print-btn, .viz-panel { display: none !important; }
     .tab-content { display: block !important; page-break-after: always; }
+    .layout-split { display: block; }
     body { background: white; }
     .content { padding: 0; }
   }
@@ -138,6 +166,8 @@
 </div>
 
 <div class="content">
+<div class="layout-split">
+<div class="tab-area">
 
   <div class="item-legend">
     <span class="item-legend-title">Items</span>
@@ -319,6 +349,11 @@
     </table>
   </div>
 
+</div><!-- /.tab-area -->
+
+<aside id="viz-panel" class="viz-panel" aria-hidden="true"></aside>
+
+</div><!-- /.layout-split -->
 </div>
 
 <script>
@@ -405,6 +440,7 @@ function renderCalcTable(bodyId, summaryIds, costs, conflictWeights, bumpLabels)
     var tr = document.createElement('tr');
     if (isConflict) tr.className = 'conflict';
     else if (isBump) tr.className = 'bump';
+    tr.setAttribute('data-combos', row.label);
     var badge = isConflict
       ? '<span class="badge badge-conflict">Weight conflict</span>'
       : isBump ? '<span class="badge badge-bump">Range bump</span>' : '';
@@ -423,6 +459,12 @@ function renderCalcTable(bodyId, summaryIds, costs, conflictWeights, bumpLabels)
   }
 }
 
+function extractCombos(str) {
+  return str.split(/\),\s*/).map(function(s) {
+    return s.replace(/\s*\(.*$/, '').trim();
+  }).filter(Boolean);
+}
+
 function renderShopifyTable(bodyId, ranges) {
   var tbody = document.getElementById(bodyId);
   if (!tbody) return;
@@ -431,6 +473,7 @@ function renderShopifyTable(bodyId, ranges) {
     var tr = document.createElement('tr');
     if (r.type === 'conflict') tr.className = 'conflict';
     else if (r.type === 'bump') tr.className = 'bump';
+    tr.setAttribute('data-combos', extractCombos(r.combos).join('|'));
     var maxDisp = r.max >= 999 ? '999 (no limit)' : String(r.max);
     tr.innerHTML =
       '<td><strong>' + r.min + ' lbs</strong></td>' +
@@ -464,7 +507,146 @@ function switchTab(name, el) {
   var target = document.getElementById('tab-' + name);
   if (target) target.classList.add('active');
   el.classList.add('active');
+  closeViz();
 }
+
+/* ─── Visualization panel ─────────────────────────────────────────────────── */
+var boxDims = {
+  A: {w: 41,   h: 16, d: 8.75, label: 'Apex 1500'},
+  B: {w: 41,   h: 16, d: 8.25, label: 'Apex 2160'},
+  X: {w: 37,   h: 17, d: 13,   label: 'Motorized Stand'},
+  Y: {w: 40,   h: 27, d: 6.5,  label: 'Pneumatic Stand'},
+  Z: {w: 16.5, h: 12, d: 5.5,  label: 'Floor Stand'}
+};
+var boxColors = {A:'#2563eb', B:'#7c3aed', X:'#059669', Y:'#d97706', Z:'#dc2626'};
+var ITEM_ORDER = ['A','B','X','Y','Z'];
+
+function parseCombo(str) {
+  var out = {};
+  String(str).split('+').forEach(function(part) {
+    var m = part.trim().match(/^(\d*)([A-Z])$/);
+    if (m) out[m[2]] = parseInt(m[1] || '1', 10);
+  });
+  return out;
+}
+
+function renderViz(comboStr) {
+  var counts = parseCombo(comboStr);
+  var keys = ITEM_ORDER.filter(function(k) { return counts[k] && boxDims[k]; });
+  if (!keys.length) return '<div style="color:#94a3b8;font-size:12px">No items.</div>';
+
+  var GAP = 3, GROUP_GAP = 12;
+  var totalW = 0, maxH = 0;
+  var groups = keys.map(function(k) {
+    var d = boxDims[k], n = counts[k];
+    var gw = n * d.w + (n - 1) * GAP;
+    totalW += gw;
+    maxH = Math.max(maxH, d.h);
+    return {key:k, dims:d, count:n, gw:gw};
+  });
+  totalW += (groups.length - 1) * GROUP_GAP;
+
+  var availW = 312, availH = 230, captionRoom = 40;
+  var scale = Math.min(availW / totalW, (availH - captionRoom) / maxH);
+
+  var svgW = totalW * scale + 16;
+  var svgH = maxH * scale + captionRoom + 6;
+  var baseline = maxH * scale + 8;
+
+  var parts = ['<svg viewBox="0 0 ' + svgW.toFixed(1) + ' ' + svgH.toFixed(1) + '" class="viz-svg" preserveAspectRatio="xMidYMid meet">'];
+  parts.push('<line x1="4" y1="' + baseline.toFixed(1) + '" x2="' + (svgW - 4).toFixed(1) + '" y2="' + baseline.toFixed(1) + '" stroke="#cbd5e1" stroke-dasharray="3,3"/>');
+
+  var x = 8;
+  groups.forEach(function(g, gi) {
+    var groupStart = x;
+    for (var i = 0; i < g.count; i++) {
+      var bw = g.dims.w * scale, bh = g.dims.h * scale;
+      var y = baseline - bh;
+      parts.push('<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + bh.toFixed(1) + '" fill="' + boxColors[g.key] + '" stroke="rgba(0,0,0,0.2)" stroke-width="1" rx="2"/>');
+      var fontSize = Math.max(9, Math.min(bw, bh) * 0.42);
+      parts.push('<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (y + bh / 2).toFixed(1) + '" fill="white" text-anchor="middle" dominant-baseline="central" font-weight="800" font-size="' + fontSize.toFixed(1) + '">' + g.key + '</text>');
+      x += bw + GAP * scale;
+    }
+    var groupEnd = x - GAP * scale;
+    var capX = (groupStart + groupEnd) / 2;
+    parts.push('<text x="' + capX.toFixed(1) + '" y="' + (baseline + 16).toFixed(1) + '" fill="#1e293b" text-anchor="middle" font-size="11" font-weight="800">' + g.count + '× ' + g.key + '</text>');
+    parts.push('<text x="' + capX.toFixed(1) + '" y="' + (baseline + 28).toFixed(1) + '" fill="#94a3b8" text-anchor="middle" font-size="9">' + g.dims.label + '</text>');
+    parts.push('<text x="' + capX.toFixed(1) + '" y="' + (baseline + 38).toFixed(1) + '" fill="#cbd5e1" text-anchor="middle" font-size="8">' + g.dims.w + '×' + g.dims.h + '×' + g.dims.d + '"</text>');
+    x += GROUP_GAP * scale;
+  });
+
+  parts.push('</svg>');
+  return parts.join('');
+}
+
+var vizState = { row: null, list: [], idx: 0 };
+
+function renderPanel() {
+  var panel = document.getElementById('viz-panel');
+  if (!panel || !vizState.list.length) return;
+  var combo = vizState.list[vizState.idx];
+  var counts = parseCombo(combo);
+  var totalWeight = 0, totalItems = 0;
+  for (var k in counts) { totalWeight += (weights[k] || 0) * counts[k]; totalItems += counts[k]; }
+
+  var pillsHtml = '';
+  if (vizState.list.length > 1) {
+    pillsHtml = '<div class="viz-pills">' + vizState.list.map(function(c, i) {
+      return '<button type="button" class="combo-pill' + (i === vizState.idx ? ' active' : '') + '" data-idx="' + i + '">' + c + '</button>';
+    }).join('') + '</div>';
+  }
+
+  panel.innerHTML =
+    '<div class="viz-header">' +
+      '<div class="viz-title">' + (vizState.list.length > 1 ? 'Combinations in bracket' : 'Combination') + '</div>' +
+      '<button type="button" class="viz-close" aria-label="Close">×</button>' +
+    '</div>' +
+    pillsHtml +
+    '<div class="viz-combo-label">' + combo + '</div>' +
+    '<div class="viz-meta">' + totalItems + ' item' + (totalItems === 1 ? '' : 's') + ' · ' + totalWeight + ' lbs</div>' +
+    '<div class="viz-canvas">' + renderViz(combo) + '</div>' +
+    '<div class="viz-scale">Drawn to relative scale (W × H, inches)</div>';
+
+  panel.querySelector('.viz-close').addEventListener('click', closeViz);
+  panel.querySelectorAll('.combo-pill').forEach(function(p) {
+    p.addEventListener('click', function() {
+      vizState.idx = parseInt(this.getAttribute('data-idx'), 10) || 0;
+      renderPanel();
+    });
+  });
+}
+
+function openViz(row) {
+  var raw = row.getAttribute('data-combos');
+  if (!raw) return;
+  if (vizState.row) vizState.row.classList.remove('viz-row-active');
+  vizState.row = row;
+  vizState.list = raw.split('|').filter(Boolean);
+  vizState.idx = 0;
+  row.classList.add('viz-row-active');
+  var panel = document.getElementById('viz-panel');
+  panel.classList.add('open');
+  panel.setAttribute('aria-hidden', 'false');
+  renderPanel();
+}
+
+function closeViz() {
+  if (vizState.row) vizState.row.classList.remove('viz-row-active');
+  vizState.row = null;
+  var panel = document.getElementById('viz-panel');
+  if (panel) {
+    panel.classList.remove('open');
+    panel.setAttribute('aria-hidden', 'true');
+    panel.innerHTML = '';
+  }
+}
+
+document.addEventListener('click', function(e) {
+  var tr = e.target.closest && e.target.closest('tr[data-combos]');
+  if (!tr) return;
+  if (tr === vizState.row) { closeViz(); return; }
+  openViz(tr);
+});
 
 /* ─────────────────────────────────────────────────────────────────────────────
    HAWAII
